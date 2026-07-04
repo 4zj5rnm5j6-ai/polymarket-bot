@@ -1,10 +1,9 @@
+import os
 import asyncio
 import aiohttp
-import requests
 from aiogram import Bot, Dispatcher
 from aiogram.types import Message
 from aiogram.filters import Command
-import os
 
 TOKEN = os.getenv("BOT_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
@@ -12,8 +11,8 @@ CHAT_ID = os.getenv("CHAT_ID")
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
-GAMMA_URL = "https://gamma-api.polymarket.com/markets?tag=crypto&limit=10"
 BINANCE_URL = "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT"
+GAMMA_URL = "https://gamma-api.polymarket.com/markets?tag_slug=crypto&limit=5&active=true"
 
 async def get_btc_price():
     async with aiohttp.ClientSession() as session:
@@ -31,9 +30,11 @@ async def monitor():
         try:
             btc = await get_btc_price()
             markets = await get_polymarket()
-            msg = f"💰 BTC: ${btc:,.0f}\n\n📊 Polymarket крипто-рынки:\n"
-            for m in markets[:3]:
-                msg += f"• {m.get('question','?')[:60]}\n"
+            msg = f"💰 BTC: ${btc:,.0f}\n\n📊 Polymarket крипто:\n"
+            for m in markets[:5]:
+                question = m.get('question', '?')[:60]
+                price = m.get('outcomePrices', ['?'])[0]
+                msg += f"• {question}\n  Цена: {price}\n"
             await bot.send_message(CHAT_ID, msg)
         except Exception as e:
             print(f"Ошибка: {e}")
