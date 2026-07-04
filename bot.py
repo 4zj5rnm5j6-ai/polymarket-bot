@@ -32,7 +32,14 @@ async def monitor():
             btc = await get_btc_price()
             markets = await get_polymarket()
             msg = f"💰 BTC: ${btc:,.0f}\n\n📊 Polymarket крипто:\n"
-            for m in markets[:5]:
+            btc_markets = [m for m in markets if 'BTC' in m.get('question', '') or 'Bitcoin' in m.get('question', '')]
+if not btc_markets:
+    btc_markets = markets[:3]
+for m in btc_markets[:5]:
+    question = m.get('question', '?')[:60]
+    price = m.get('bestBid', '?')
+    msg += f"• {question}\n  Цена: {price}\n"
+
                 question = m.get('question', '?')[:60]
                 price = m.get('bestBid', '?')
 
