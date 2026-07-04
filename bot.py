@@ -11,12 +11,15 @@ TOKEN = os.getenv("BOT_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 
 # Порог изменения цены BTC (%), после которого считаем, что рынок уже "должен был" отреагировать
-LAG_THRESHOLD_PCT = float(os.getenv("LAG_THRESHOLD_PCT", "0.05"))
+LAG_THRESHOLD_PCT = float(os.getenv("LAG_THRESHOLD_PCT", "0.10"))
 # Если цена на Polymarket ниже этого значения, а движение уже произошло — считаем это лагом
 PRICE_THRESHOLD = float(os.getenv("PRICE_THRESHOLD", "0.65"))
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
+
+# Флаг, чтобы /start не плодил параллельные копии monitor()
+monitor_task = None
 
 BINANCE_URL = "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT"
 
@@ -140,12 +143,17 @@ async def monitor():
 
 @dp.message(Command("start"))
 async def start(message: Message):
+    global monitor_task
+    if monitor_task is not None and not monitor_task.done():
+        await message.answer("🤖 Монитор уже запущен, всё в порядке — новую копию не создаю.")
+        return
+    monitor_task = asyncio.create_task(monitor())
     await message.answer("🤖 Polymarket BTC монитор запущен!\nОбновление каждые 5 минут.\nЛаг-детект: включён.")
-    asyncio.create_task(monitor())
 
 
 async def main():
-    asyncio.create_task(monitor())
+    global monitor_task
+    monitor_task = asyncio.create_task(monitor())
     await dp.start_polling(bot)
 
 
