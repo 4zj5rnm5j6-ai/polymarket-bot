@@ -12,7 +12,7 @@ bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
 BINANCE_URL = "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT"
-GAMMA_URL = "https://gamma-api.polymarket.com/markets?tag_slug=crypto&limit=5&active=true"
+GAMMA_URL = "https://gamma-api.polymarket.com/markets?&tag_slug=cryptolimit=5&active=true"
 
 async def get_btc_price():
     async with aiohttp.ClientSession() as session:
@@ -33,7 +33,8 @@ async def monitor():
             msg = f"💰 BTC: ${btc:,.0f}\n\n📊 Polymarket крипто:\n"
             for m in markets[:5]:
                 question = m.get('question', '?')[:60]
-                price = m.get('outcomePrices', ['?'])[0]
+                price = m.get('bestBid', '?')
+
                 msg += f"• {question}\n  Цена: {price}\n"
             await bot.send_message(CHAT_ID, msg)
         except Exception as e:
