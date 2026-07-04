@@ -1,1 +1,1 @@
-# polymarket-bot
+python bot.py
