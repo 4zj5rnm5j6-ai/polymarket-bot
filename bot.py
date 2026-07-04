@@ -12,7 +12,8 @@ bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
 BINANCE_URL = "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT"
-GAMMA_URL = "https://gamma-api.polymarket.com/markets?&tag_slug=cryptolimit=5&active=true"
+GAMMA_URL = "https://gamma-api.polymarket.com/markets?search=BTC&limit=5&active=true"
+
 
 async def get_btc_price():
     async with aiohttp.ClientSession() as session:
